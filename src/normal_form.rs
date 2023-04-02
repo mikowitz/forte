@@ -112,20 +112,20 @@ mod tests {
     fn normal_form_with_one_clear_answer() {
         let set: Set = vec![9, 10, 5];
         let expected: Set = vec![5, 9, 10];
-        assert_eq!(*from(&set), expected);
+        assert_eq!(from(&set), expected);
     }
 
     #[test]
     fn normal_form_with_multiple_options_with_same_span_but_different_packing() {
         let set: Set = vec![5, 8, 9, 1];
         let expected: Set = vec![1, 5, 8, 9];
-        assert_eq!(*from(&set), expected);
+        assert_eq!(from(&set), expected);
     }
 
     #[test]
     fn normal_form_prefers_packing_to_the_left() {
         let set: Set = vec![0, 4, 8, 9, 11];
         let expected: Set = vec![8, 9, 11, 0, 4];
-        assert_eq!(*from(&set), expected);
+        assert_eq!(from(&set), expected);
     }
 }
