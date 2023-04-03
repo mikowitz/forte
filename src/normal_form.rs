@@ -41,7 +41,7 @@ fn get_interval_between(a: u32, b: u32) -> u32 {
 
 pub fn from(set: &Set) -> Set {
     let mut set = set.clone();
-    set.sort();
+    set.sort_unstable();
     let rotations: Vec<Internal> = (1..=set.len())
         .map(|i| Internal::new(create_rotation(&set, i)))
         .collect();
@@ -84,7 +84,7 @@ fn find_best_packed_candidate(sets: Vec<&Internal>) -> &Internal {
 fn set_with_interval_scan(set: &Internal, is_reversed: bool) -> (Vec<u32>, bool, &Internal) {
     let mut intervals = set.intervals.clone();
     if is_reversed {
-        intervals.reverse()
+        intervals.reverse();
     }
     let interval_scan: Vec<u32> = create_interval_scan(intervals);
     (interval_scan, is_reversed, set)

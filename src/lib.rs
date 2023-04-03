@@ -17,12 +17,12 @@ define_transpositions!(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11);
 
 #[cfg(test)]
 mod tests {
-    use crate::{t1, Set};
+    use crate::{t3, Set};
 
     #[test]
     fn generated_transposition_levels() {
-        let set: Set = vec![0, 1, 2];
+        let set: Set = vec![7, 8, 10, 11];
 
-        assert_eq!(t1(&set), vec![1, 2, 3]);
+        assert_eq!(t3(&set), vec![10, 11, 1, 2]);
     }
 }
