@@ -1,4 +1,4 @@
-use crate::Set;
+use crate::{utils, Set};
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 struct Internal {
@@ -10,7 +10,7 @@ struct Internal {
 impl Internal {
     pub fn new(set: Set) -> Self {
         let total_span = total_span(&set);
-        let intervals = intervals(&set);
+        let intervals = utils::intervals(&set);
         Self {
             set,
             intervals,
@@ -22,21 +22,7 @@ impl Internal {
 fn total_span(set: &Set) -> u32 {
     let a = set.first().unwrap();
     let b = set.last().unwrap();
-    get_interval_between(*a, *b)
-}
-
-fn find_interval(pair: &[u32]) -> u32 {
-    let a = pair[0];
-    let b = pair[1];
-    get_interval_between(a, b)
-}
-
-fn get_interval_between(a: u32, b: u32) -> u32 {
-    if b >= a {
-        b - a
-    } else {
-        (b + 12) - a
-    }
+    utils::get_interval_between(*a, *b)
 }
 
 pub fn from(set: &Set) -> Set {
@@ -98,10 +84,6 @@ fn create_interval_scan(intervals: Vec<u32>) -> Vec<u32> {
             Some(*acc)
         })
         .collect()
-}
-
-fn intervals(set: &Set) -> Vec<u32> {
-    set.windows(2).map(find_interval).collect()
 }
 
 #[cfg(test)]
