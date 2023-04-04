@@ -14,17 +14,25 @@ pub fn by_pair(set: &Set, inversion_pair: (u32, u32)) -> Set {
 }
 
 #[macro_export]
+#[doc(hidden)]
 macro_rules! define_inversions {
     (
         $($level:expr) , *
     ) => {
-        paste! {
-            $(
+        $(
+            paste! {
+                #[doc = concat!("Inverts a pitch class [set][Set] by ", stringify!($level), ".")]
+                #[doc = "\n\n"]
+                #[doc = "Equivalent to calling\n"]
+                #[doc = "```\n"]
+                #[doc = "# let set = vec![1,2,3];"]
+                #[doc = concat!("forte::invert(&set, ", stringify!($level), ");\n")]
+                #[doc = "```"]
                 pub fn [<i $level>](set: &Set) -> Set {
                     invert(set, $level)
                 }
-            )*
-        }
+            }
+        )*
     };
 }
 

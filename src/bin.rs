@@ -1,7 +1,8 @@
-use forte::{invert_by_pair, Set};
+use forte::Set;
 
 fn main() {
-    let s1: Set = vec![0, 2, 5];
+    let s1: Set = vec![5, 8, 9, 1];
 
-    println!("{s1:?}\t{:?}", invert_by_pair(&s1, (1, 5)));
+    println!("{s1:?}\t{:?}", forte::to_normal_form(&s1));
+    println!("{s1:?}\t{:?}", forte::to_prime_form(&s1));
 }
