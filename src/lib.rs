@@ -5,10 +5,10 @@
 //! A set can be converted into its normal form using [to_normal_form]
 //!
 //! ```
-//! # use forte::{Set, to_normal_form};
-//! let set: Set = vec![0, 2, 11];
+//! # use forte::{Set, PitchClass::*, to_normal_form};
+//! let set: Set = vec![C, D, B];
 //! let normal = to_normal_form(&set);
-//! assert_eq!(normal, vec![11, 0, 2]);
+//! assert_eq!(normal, vec![B, C, D]);
 //! ```
 //!
 //! ## Prime Form
@@ -16,10 +16,10 @@
 //! A set can be converted to the prime form of its set class using [to_prime_form]
 //!
 //! ```
-//! # use forte::{to_prime_form, Set};
-//! let set: Set = vec![1, 5, 6, 7];
+//! # use forte::{to_prime_form, PitchClass::*, Set};
+//! let set: Set = vec![Cs, F, Fs, G];
 //! let prime = to_prime_form(&set);
-//! assert_eq!(prime, vec![0,1,2,6]);
+//! assert_eq!(prime, vec![0, 1, 2, 6]);
 //! ```
 //! ## Transposition
 //!
@@ -29,18 +29,18 @@
 //! (mod 12) specifying the transposition level
 //!
 //! ```rust
-//! # use forte::{Set, transpose};
-//! let set: Set = vec![0, 2, 5];
+//! # use forte::{Set, PitchClass::*, transpose};
+//! let set: Set = vec![C, D, F];
 //! let transposed = transpose(&set, 3);
-//! assert_eq!(transposed, vec![3, 5, 8]);
+//! assert_eq!(transposed, vec![Ef, F, Af]);
 //! ```
 //!
 //! Second, by using `forte`'s `tX` functions, which tranpose a given set by `X`
 //! ```rust
-//! # use forte::Set;
-//! let set: Set = vec![0, 2, 5];
+//! # use forte::{PitchClass::*, Set};
+//! let set: Set = vec![C, D, F];
 //! let transposed = forte::t4(&set);
-//! assert_eq!(transposed, vec![4, 6, 9]);
+//! assert_eq!(transposed, vec![E, Fs, A]);
 //! ```
 //!
 //! The available functions of this form are [t0], [t1], ... [t11]
@@ -53,39 +53,56 @@
 //! (mod 12) specifying the inversion level
 //!
 //! ```rust
-//! # use forte::{Set, invert};
-//! let set: Set = vec![0, 2, 5];
+//! # use forte::{Set, PitchClass::*, invert};
+//! let set: Set = vec![C, D, F];
 //! let inverted = invert(&set, 4);
-//! assert_eq!(inverted, vec![11, 2, 4]);
+//! assert_eq!(inverted, vec![B, D, E]);
 //! ```
 //! Second, by using [forte](crate)'s `iX` functions, [i0], [i1], ... [i11], which invert a given set around `X`
 //! ```rust
-//! # use forte::Set;
-//! let set: Set = vec![0, 2, 5];
+//! # use forte::{Set, PitchClass::*};
+//! let set: Set = vec![C, D, F];
 //! let inverted = forte::i3(&set);
-//! assert_eq!(inverted, vec![10, 1, 3]);
+//! assert_eq!(inverted, vec![Bf, Cs, Ef]);
 //! ```
 //! `forte` also provides [invert_by_pair], which takes a reference
 //! to a set, and a 2-element tuple of integers (mod 12) that defines one of the
 //! desired inversion level's pitch class mappings.
 //!
 //! ```rust
-//! # use forte::{invert_by_pair, Set};
-//! let set: Set = vec![0, 2, 5];
-//! let inverted = invert_by_pair(&set, (1, 5));
-//! assert_eq!(inverted, vec![1, 4, 6]);
+//! # use forte::{invert_by_pair, Set, PitchClass::*};
+//! let set: Set = vec![C, D, F];
+//! let inverted = invert_by_pair(&set, (Cs, F));
+//! assert_eq!(inverted, vec![Cs, E, Fs]);
 //! ```
-
-/// Syntatic alias to specify intent throughout [forte](crate)
-pub type Set = Vec<u32>;
 
 mod inversion;
 mod normal_form;
+mod pitch_class;
 mod prime_form;
 mod transposition;
 mod utils;
 
+pub use pitch_class::PitchClass;
+
 use paste::paste;
+
+/// Syntactic shorthand for creating a new [set](Set)
+/// ```
+/// use forte::{Set, PitchClass::*, set};
+/// let set: Set = set![C, E, G];
+/// ```
+#[macro_export]
+macro_rules! set {
+    (
+        $($pc:expr) , *
+    ) => {
+        vec![$($pc),*]
+    }
+}
+
+/// Syntatic alias to represent a [vector](Vec) of [pitch classes](PitchClass)
+pub type Set = Vec<PitchClass>;
 
 /// Reorders a pitch class set into normal form (the most compressed way of
 /// representing the set).
@@ -94,19 +111,19 @@ use paste::paste;
 /// elements of the set is as small as possible.
 ///
 /// ```
-/// # use forte::{to_normal_form, Set};
-/// let set: Set = vec![10, 5, 9]; // Total interval (mod 12) is 11
+/// # use forte::{to_normal_form, Set, PitchClass::*};
+/// let set: Set = vec![Bf, F, A]; // Total interval (mod 12) is 11
 /// # let normal = to_normal_form(&set);
-/// # assert_eq!(normal, vec![5, 9, 10]); // Total interval (mod 12) is 5
+/// # assert_eq!(normal, vec![F, A, Bf]); // Total interval (mod 12) is 5
 /// ```
 /// By converting the set to normal form, we find a much more compact
 /// ordering of the set elements
 ///
 /// ```
-/// # use forte::{to_normal_form, Set};
-/// # let set: Set = vec![10, 5, 9]; // Total interval (mod 12) is 11
+/// # use forte::{to_normal_form, Set, PitchClass::*};
+/// # let set: Set = vec![Bf, F, A]; // Total interval (mod 12) is 11
 /// let normal = to_normal_form(&set);
-/// assert_eq!(normal, vec![5, 9, 10]); // Total interval (mod 12) is 5
+/// assert_eq!(normal, vec![F, A, Bf]); // Total interval (mod 12) is 5
 /// ```
 ///
 /// ## Sets with multiple minimal total intervals
@@ -114,9 +131,9 @@ use paste::paste;
 /// Some sets have more than one ordering with a minimal total interval
 ///
 /// ```
-/// # use forte::{to_normal_form, Set};
-/// let set1: Set = vec![5, 8, 9, 1]; // Total interval (mod 12) is 8
-/// let set2: Set = vec![1, 5, 8, 9]; // Total interval is *also* 8
+/// # use forte::{to_normal_form, Set, PitchClass::*};
+/// let set1: Set = vec![F, Af, A, Cs]; // Total interval (mod 12) is 8
+/// let set2: Set = vec![Cs, F, Af, A]; // Total interval is *also* 8
 /// # let normal = to_normal_form(&set1);
 /// # assert_eq!(normal, set2);
 /// ```
@@ -130,9 +147,9 @@ use paste::paste;
 /// In this case, `set2` has more closely packed intervals at the top of the ordered set,
 /// so it is this set's normal form
 /// ```
-/// # use forte::{to_normal_form, Set};
-/// # let set1: Set = vec![5, 8, 9, 1]; // Total interval (mod 12) is 8
-/// # let set2: Set = vec![1, 5, 8, 9]; // Total interval is *also* 8
+/// # use forte::{to_normal_form, Set, PitchClass::*};
+/// # let set1: Set = vec![F, Af, A, Cs]; // Total interval (mod 12) is 8
+/// # let set2: Set = vec![Cs, F, Af, A]; // Total interval is *also* 8
 /// let normal = to_normal_form(&set1);
 /// assert_eq!(normal, set2);
 /// ```
@@ -143,9 +160,9 @@ use paste::paste;
 /// there be multiple orderings with the same total interval size, but the
 /// intervals for these orderings will be mirror images of each other.
 /// ```
-/// # use forte::{to_normal_form, Set};
-/// let set1: Set = vec![4, 8, 9, 11, 0]; // Total interval (mod 12) is 8
-/// let set2: Set = vec![8, 9, 11, 0, 4]; // Total interval is *also* 8
+/// # use forte::{to_normal_form, Set, PitchClass::*};
+/// let set1: Set = vec![E, Af, A, B, C]; // Total interval (mod 12) is 8
+/// let set2: Set = vec![Af, A, B, C, E]; // Total interval is *also* 8
 /// # let normal = to_normal_form(&set1);
 /// # assert_eq!(normal, set2);
 /// ```
@@ -159,9 +176,9 @@ use paste::paste;
 /// In this case, `set2` is packed more towards the bottom, so it is chosen
 /// as the normal form of this pitch class set.
 /// ```
-/// # use forte::{to_normal_form, Set};
-/// # let set1: Set = vec![4, 8, 9, 11, 0]; // Total interval (mod 12) is 8
-/// # let set2: Set = vec![8, 9, 11, 0, 4]; // Total interval is *also* 8
+/// # use forte::{to_normal_form, Set, PitchClass::*};
+/// # let set1: Set = vec![E, Af, A, B, C]; // Total interval (mod 12) is 8
+/// # let set2: Set = vec![Af, A, B, C, E]; // Total interval is *also* 8
 /// let normal = to_normal_form(&set1);
 /// assert_eq!(normal, set2);
 /// ```
@@ -176,28 +193,28 @@ pub fn to_normal_form(set: &Set) -> Set {
 /// prime forms always begin on 0, as they represent the base
 /// form for the entire T/I set class.
 /// ```
-/// # use forte::{to_prime_form, Set};
-/// let set: Set = vec![10, 5, 9]; // Total interval (mod 12) is 11
+/// # use forte::{to_prime_form, Set, PitchClass::*};
+/// let set: Set = vec![Bf, F, A]; // Total interval (mod 12) is 11
 /// # let prime = to_prime_form(&set);
 /// # assert_eq!(prime, vec![0, 1, 5]);
 /// ```
 /// Unlike in [normal form](to_normal_form), where the reorderd set contains the original pitch class data,
 /// in prime form, the set is reordered and transposed to begin on `0`.
 /// ```
-/// # use forte::{to_prime_form, Set};
-/// # let set: Set = vec![10, 5, 9]; // Total interval (mod 12) is 11
+/// # use forte::{to_prime_form, Set, PitchClass::*};
+/// # let set: Set = vec![Bf, F, A]; // Total interval (mod 12) is 11
 /// let prime = to_prime_form(&set);
 /// assert_eq!(prime, vec![0, 1, 5]); // Total interval (mod 12) is 5, and begins on 0
 /// ```
 /// Likewise, because the prime form is the base form of the T/I set class to which the pitch
 /// class set belongs, multiple pitch class sets will have the same prime form
 /// ```
-/// # use forte::{to_prime_form, Set};
-/// let set: Set = vec![4, 3, 8];
+/// # use forte::{to_prime_form, Set, PitchClass::*};
+/// let set: Set = vec![E, Ef, Af];
 /// let prime = to_prime_form(&set);
 /// assert_eq!(prime, vec![0, 1, 5]);
 /// ```
-pub fn to_prime_form(set: &Set) -> Set {
+pub fn to_prime_form(set: &Set) -> Vec<u32> {
     prime_form::from(set)
 }
 
@@ -209,17 +226,17 @@ pub fn to_prime_form(set: &Set) -> Set {
 /// ```
 ///
 /// ```
-/// # use forte::{transpose, Set};
-/// let set: Set = vec![4, 5, 8];
+/// # use forte::{transpose, Set, PitchClass::*};
+/// let set: Set = vec![E, F, Af];
 /// let transposed = transpose(&set, 5);
-/// assert_eq!(transposed, vec![9, 10, 1]);
+/// assert_eq!(transposed, vec![A, Bf, Cs]);
 /// ```
 /// Transposition can also be performed by the `tX` functions: [t0], [t1], ... [t11]
 /// ```
-/// # use forte::{Set};
-/// let set: Set = vec![4, 5, 8];
+/// # use forte::{Set, PitchClass::*};
+/// let set: Set = vec![E, F, Af];
 /// let transposed = forte::t3(&set);
-/// assert_eq!(transposed, vec![7, 8, 11]);
+/// assert_eq!(transposed, vec![G, Af, B]);
 pub fn transpose(set: &Set, level: u32) -> Set {
     transposition::by(set, level)
 }
@@ -232,17 +249,17 @@ pub fn transpose(set: &Set, level: u32) -> Set {
 /// ```
 ///
 /// ```
-/// # use forte::{invert, Set};
-/// let set: Set = vec![4, 5, 8];
+/// # use forte::{invert, Set, PitchClass::*};
+/// let set: Set = vec![E, F, Af];
 /// let inverted = invert(&set, 5);
-/// assert_eq!(inverted, vec![9, 0, 1]);
+/// assert_eq!(inverted, vec![A, C, Cs]);
 /// ```
 /// Inversion can also be performed by the `iX` functions: [i0], [i1], ... [i11]
 /// ```
-/// # use forte::{Set};
-/// let set: Set = vec![4, 5, 8];
+/// # use forte::{Set, PitchClass::*};
+/// let set: Set = vec![E, F, Af];
 /// let inverted = forte::i0(&set);
-/// assert_eq!(inverted, vec![4, 7, 8]);
+/// assert_eq!(inverted, vec![E, G, Af]);
 /// ```
 /// **NB** As shown above, unlike transposition, where transposing by 0 is an identity
 /// function (that is, it returns its input), inverting around 0 is *not* an identity
@@ -254,10 +271,10 @@ pub fn invert(set: &Set, level: u32) -> Set {
 /// Invert a set by specifying one pair of pitch classes that map onto each
 /// other by the desired inversion level.
 /// ```
-/// # use forte::{invert_by_pair, Set};
-/// let set: Set = vec![0, 1, 2, 5];
-/// let inverted = invert_by_pair(&set, (0, 1));
-/// assert_eq!(inverted, vec![8, 11, 0, 1]);
+/// # use forte::{invert_by_pair, Set, PitchClass::*};
+/// let set: Set = vec![C, Cs, D, F];
+/// let inverted = invert_by_pair(&set, (C, Cs));
+/// assert_eq!(inverted, vec![Af, B, C, Cs]);
 /// ```
 /// In this example, the set is inverted around a level that results in `0` being inverted to `1`
 /// and vice versa.
@@ -270,17 +287,17 @@ pub fn invert(set: &Set, level: u32) -> Set {
 ///
 /// Thus, this inversion is equivalent to calling
 /// ```
-/// # use forte::{invert, Set};
-/// # let set: Set = vec![0, 1, 2, 5];
+/// # use forte::{invert, Set, PitchClass::*};
+/// # let set: Set = vec![C, Cs, D, F];
 /// invert(&set, 1);
 /// ```
 /// or
 /// ```
-/// # use forte::{Set};
-/// # let set: Set = vec![0, 1, 2, 5];
+/// # use forte::{Set, PitchClass::*};
+/// # let set: Set = vec![C, Cs, D, F];
 /// forte::i1(&set);
 /// ```
-pub fn invert_by_pair(set: &Set, inversion_pair: (u32, u32)) -> Set {
+pub fn invert_by_pair(set: &Set, inversion_pair: (PitchClass, PitchClass)) -> Set {
     inversion::by_pair(set, inversion_pair)
 }
 
@@ -289,46 +306,54 @@ define_inversions!(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11);
 
 #[cfg(test)]
 mod tests {
-    use crate::{i5, invert, invert_by_pair, t3, to_prime_form, transpose, Set};
+    use crate::PitchClass::*;
+    use crate::{i5, invert, invert_by_pair, t3, to_normal_form, to_prime_form, transpose, Set};
 
     #[test]
     fn transposition() {
-        let set: Set = vec![7, 8, 10, 11];
+        let set: Set = vec![G, Af, Bf, B];
 
-        assert_eq!(transpose(&set, 3), vec![10, 11, 1, 2]);
+        assert_eq!(transpose(&set, 3), vec![Bf, B, Cs, D]);
     }
 
     #[test]
     fn generated_transposition_levels() {
-        let set: Set = vec![7, 8, 10, 11];
+        let set: Set = vec![G, Af, Bf, B];
 
-        assert_eq!(t3(&set), vec![10, 11, 1, 2]);
+        assert_eq!(t3(&set), vec![Bf, B, Cs, D]);
     }
 
     #[test]
     fn inversion() {
-        let set: Set = vec![1, 3, 4, 7];
+        let set: Set = vec![Cs, Ef, E, G];
 
-        assert_eq!(invert(&set, 5), vec![10, 1, 2, 4]);
+        assert_eq!(invert(&set, 5), vec![Bf, Cs, D, E]);
     }
 
     #[test]
     fn inversion_by_pair() {
-        let set: Set = vec![7, 8, 11];
+        let set: Set = vec![G, Af, B];
 
-        assert_eq!(invert_by_pair(&set, (7, 11)), vec![7, 10, 11]);
+        assert_eq!(invert_by_pair(&set, (G, B)), vec![G, Bf, B]);
     }
 
     #[test]
     fn generated_inversion_levels() {
-        let set: Set = vec![1, 3, 4, 7];
+        let set: Set = vec![Cs, Ef, E, G];
 
-        assert_eq!(i5(&set), vec![10, 1, 2, 4]);
+        assert_eq!(i5(&set), vec![Bf, Cs, D, E]);
     }
 
     #[test]
-    fn to_normal_form() {
-        let set: Set = vec![10, 2, 5, 6];
+    fn normal_form() {
+        let set: Set = vec![A, Bf, F];
+        let expected: Set = vec![F, A, Bf];
+        assert_eq!(to_normal_form(&set), expected);
+    }
+
+    #[test]
+    fn prime_form() {
+        let set: Set = vec![Bf, D, F, Fs];
 
         assert_eq!(to_prime_form(&set), vec![0, 1, 4, 8]);
     }

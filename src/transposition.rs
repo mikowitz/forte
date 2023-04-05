@@ -1,7 +1,9 @@
 use crate::Set;
 
 pub fn by(set: &Set, level: u32) -> Set {
-    set.iter().map(|pc| (pc + level).rem_euclid(12)).collect()
+    set.iter()
+        .map(|pc| ((*pc).to_u32() + level).rem_euclid(12).into())
+        .collect()
 }
 
 #[macro_export]
@@ -14,7 +16,8 @@ macro_rules! define_transpositions {
                 #[doc = "\n\n"]
                 #[doc = "Equivalent to calling\n"]
                 #[doc = "```\n"]
-                #[doc = "# let set = vec![1,2,3];"]
+                #[doc = "# use forte::{Set, PitchClass::*};"]
+                #[doc = "# let set: Set = vec![Cs, D, Ef];"]
                 #[doc = concat!("forte::transpose(&set, ", stringify!($level), ");\n")]
                 #[doc = "```"]
                 pub fn [<t $level>](set: &Set) -> Set {
@@ -28,12 +31,13 @@ macro_rules! define_transpositions {
 #[cfg(test)]
 mod tests {
     use super::{by, Set};
+    use crate::PitchClass::*;
 
     #[test]
     fn transposing_by_a_level() {
-        let set: Set = vec![5, 7, 8, 11];
+        let set: Set = vec![F, G, Af, B];
         let transposed: Set = by(&set, 8);
-        let expected: Set = vec![1, 3, 4, 7];
+        let expected: Set = vec![Cs, Ef, E, G];
 
         assert_eq!(transposed, expected);
     }

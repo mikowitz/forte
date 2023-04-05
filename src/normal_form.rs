@@ -22,7 +22,7 @@ impl Internal {
 fn total_span(set: &Set) -> u32 {
     let a = set.first().unwrap();
     let b = set.last().unwrap();
-    utils::get_interval_between(*a, *b)
+    utils::get_interval_between((*a).to_u32(), (*b).to_u32())
 }
 
 pub fn from(set: &Set) -> Set {
@@ -45,7 +45,7 @@ pub fn from(set: &Set) -> Set {
 fn create_rotation(set: &Set, rotation: usize) -> Set {
     let mut rotated = set.clone();
     rotated.rotate_right(rotation);
-    rotated
+    rotated.to_vec()
 }
 
 fn find_normal_form(candidates: Vec<&Internal>) -> &Internal {
@@ -89,25 +89,26 @@ fn create_interval_scan(intervals: Vec<u32>) -> Vec<u32> {
 #[cfg(test)]
 mod tests {
     use super::{from, Set};
+    use crate::PitchClass::*;
 
     #[test]
     fn normal_form_with_one_clear_answer() {
-        let set: Set = vec![9, 10, 5];
-        let expected: Set = vec![5, 9, 10];
+        let set: Set = vec![A, Bf, F];
+        let expected: Set = vec![F, A, Bf];
         assert_eq!(from(&set), expected);
     }
 
     #[test]
     fn normal_form_with_multiple_options_with_same_span_but_different_packing() {
-        let set: Set = vec![5, 8, 9, 1];
-        let expected: Set = vec![1, 5, 8, 9];
+        let set: Set = vec![F, Af, A, Cs];
+        let expected: Set = vec![Cs, F, Af, A];
         assert_eq!(from(&set), expected);
     }
 
     #[test]
     fn normal_form_prefers_packing_to_the_left() {
-        let set: Set = vec![0, 4, 8, 9, 11];
-        let expected: Set = vec![8, 9, 11, 0, 4];
+        let set: Set = vec![C, E, Af, A, B];
+        let expected: Set = vec![Af, A, B, C, E];
         assert_eq!(from(&set), expected);
     }
 }
