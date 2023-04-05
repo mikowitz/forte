@@ -1,7 +1,7 @@
 use crate::{normal_form, utils, Set};
 use std::cmp::min;
 
-pub fn from(set: &Set) -> Set {
+pub fn from(set: &Set) -> Vec<u32> {
     let nf: Set = normal_form::from(set);
     let intervals: Vec<u32> = utils::intervals(&nf);
     let mut reversed = intervals.clone();
@@ -20,24 +20,25 @@ pub fn from(set: &Set) -> Set {
 #[cfg(test)]
 mod tests {
     use super::{from, Set};
+    use crate::PitchClass::*;
 
     #[test]
     fn prime_form_from_normal_form() {
-        let set: Set = vec![5, 6, 9];
+        let set: Set = vec![F, Fs, A];
         let prime = from(&set);
         assert_eq!(prime, vec![0, 1, 4]);
     }
 
     #[test]
     fn prime_form_from_non_normal_form() {
-        let set: Set = vec![9, 5, 6];
+        let set: Set = vec![A, F, Fs];
         let prime = from(&set);
         assert_eq!(prime, vec![0, 1, 4]);
     }
 
     #[test]
     fn prime_form_from_right_packed_normal_form() {
-        let set: Set = vec![1, 5, 6, 7];
+        let set: Set = vec![Cs, F, Fs, G];
         let prime = from(&set);
         assert_eq!(prime, vec![0, 1, 2, 6]);
     }
