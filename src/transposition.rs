@@ -1,9 +1,12 @@
-use crate::Set;
+use crate::PitchClassSet;
 
-pub fn by(set: &Set, level: u32) -> Set {
-    set.iter()
+pub fn by(set: &PitchClassSet, level: u32) -> PitchClassSet {
+    let new_set = set
+        .set()
+        .iter()
         .map(|pc| ((*pc).to_u32() + level).rem_euclid(12).into())
-        .collect()
+        .collect();
+    PitchClassSet::new(new_set)
 }
 
 #[macro_export]
@@ -12,15 +15,15 @@ macro_rules! define_transpositions {
     ($($level:expr),*) => {
         $(
             paste! {
-                #[doc = concat!("Transposes a pitch class [set][Set] by ", stringify!($level), ".")]
+                #[doc = concat!("Transposes a pitch class [PitchClassSet] by ", stringify!($level), ".")]
                 #[doc = "\n\n"]
                 #[doc = "Equivalent to calling\n"]
                 #[doc = "```\n"]
-                #[doc = "# use forte::{Set, PitchClass::*};"]
-                #[doc = "# let set: Set = vec![Cs, D, Ef];"]
+                #[doc = "# use forte::{PitchClassSet, set, PitchClass::*};"]
+                #[doc = "# let set: PitchClassSet = set![Cs, D, Ef];"]
                 #[doc = concat!("forte::transpose(&set, ", stringify!($level), ");\n")]
                 #[doc = "```"]
-                pub fn [<t $level>](set: &Set) -> Set {
+                pub fn [<t $level>](set: &PitchClassSet) -> PitchClassSet {
                     transpose(set, $level)
                 }
             }
@@ -30,14 +33,14 @@ macro_rules! define_transpositions {
 
 #[cfg(test)]
 mod tests {
-    use super::{by, Set};
-    use crate::PitchClass::*;
+    use super::{by, PitchClassSet};
+    use crate::{set, PitchClass::*};
 
     #[test]
     fn transposing_by_a_level() {
-        let set: Set = vec![F, G, Af, B];
-        let transposed: Set = by(&set, 8);
-        let expected: Set = vec![Cs, Ef, E, G];
+        let set: PitchClassSet = set![F, G, Af, B];
+        let transposed: PitchClassSet = by(&set, 8);
+        let expected: PitchClassSet = set![Cs, Ef, E, G];
 
         assert_eq!(transposed, expected);
     }
