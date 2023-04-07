@@ -1,16 +1,16 @@
-use crate::{utils, Set};
+use crate::{utils, PitchClass, PitchClassSet};
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 struct Internal {
-    set: Set,
+    set: PitchClassSet,
     intervals: Vec<u32>,
     total_span: u32,
 }
 
 impl Internal {
-    pub fn new(set: Set) -> Self {
+    pub fn new(set: PitchClassSet) -> Self {
         let total_span = total_span(&set);
-        let intervals = utils::intervals(&set);
+        let intervals = utils::intervals(set.set());
         Self {
             set,
             intervals,
@@ -19,14 +19,14 @@ impl Internal {
     }
 }
 
-fn total_span(set: &Set) -> u32 {
-    let a = set.first().unwrap();
-    let b = set.last().unwrap();
+fn total_span(set: &PitchClassSet) -> u32 {
+    let a = set.set().first().unwrap();
+    let b = set.set().last().unwrap();
     utils::get_interval_between((*a).to_u32(), (*b).to_u32())
 }
 
-pub fn from(set: &Set) -> Set {
-    let mut set = set.clone();
+pub fn from(set: &PitchClassSet) -> PitchClassSet {
+    let mut set = set.set().clone();
     set.sort_unstable();
     let rotations: Vec<Internal> = (1..=set.len())
         .map(|i| Internal::new(create_rotation(&set, i)))
@@ -42,10 +42,10 @@ pub fn from(set: &Set) -> Set {
     find_normal_form(rotations_with_min_span).set.clone()
 }
 
-fn create_rotation(set: &Set, rotation: usize) -> Set {
-    let mut rotated = set.clone();
+fn create_rotation(set: &[PitchClass], rotation: usize) -> PitchClassSet {
+    let mut rotated = set.to_vec();
     rotated.rotate_right(rotation);
-    rotated.to_vec()
+    PitchClassSet::new(rotated)
 }
 
 fn find_normal_form(candidates: Vec<&Internal>) -> &Internal {
@@ -88,27 +88,27 @@ fn create_interval_scan(intervals: Vec<u32>) -> Vec<u32> {
 
 #[cfg(test)]
 mod tests {
-    use super::{from, Set};
-    use crate::PitchClass::*;
+    use super::{from, PitchClassSet};
+    use crate::{set, PitchClass::*};
 
     #[test]
     fn normal_form_with_one_clear_answer() {
-        let set: Set = vec![A, Bf, F];
-        let expected: Set = vec![F, A, Bf];
+        let set: PitchClassSet = set![A, Bf, F];
+        let expected: PitchClassSet = set![F, A, Bf];
         assert_eq!(from(&set), expected);
     }
 
     #[test]
     fn normal_form_with_multiple_options_with_same_span_but_different_packing() {
-        let set: Set = vec![F, Af, A, Cs];
-        let expected: Set = vec![Cs, F, Af, A];
+        let set: PitchClassSet = set![F, Af, A, Cs];
+        let expected: PitchClassSet = set![Cs, F, Af, A];
         assert_eq!(from(&set), expected);
     }
 
     #[test]
     fn normal_form_prefers_packing_to_the_left() {
-        let set: Set = vec![C, E, Af, A, B];
-        let expected: Set = vec![Af, A, B, C, E];
+        let set: PitchClassSet = set![C, E, Af, A, B];
+        let expected: PitchClassSet = set![Af, A, B, C, E];
         assert_eq!(from(&set), expected);
     }
 }

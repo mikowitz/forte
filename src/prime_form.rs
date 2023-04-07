@@ -1,9 +1,9 @@
-use crate::{normal_form, utils, Set};
+use crate::{normal_form, utils, PitchClassSet};
 use std::cmp::min;
 
-pub fn from(set: &Set) -> Vec<u32> {
-    let nf: Set = normal_form::from(set);
-    let intervals: Vec<u32> = utils::intervals(&nf);
+pub fn from(set: &PitchClassSet) -> Vec<u32> {
+    let nf: PitchClassSet = normal_form::from(set);
+    let intervals: Vec<u32> = utils::intervals(nf.set());
     let mut reversed = intervals.clone();
     reversed.reverse();
     let mut left_packed = min(intervals, reversed);
@@ -19,26 +19,26 @@ pub fn from(set: &Set) -> Vec<u32> {
 
 #[cfg(test)]
 mod tests {
-    use super::{from, Set};
-    use crate::PitchClass::*;
+    use super::{from, PitchClassSet};
+    use crate::{set, PitchClass::*};
 
     #[test]
     fn prime_form_from_normal_form() {
-        let set: Set = vec![F, Fs, A];
+        let set: PitchClassSet = set![F, Fs, A];
         let prime = from(&set);
         assert_eq!(prime, vec![0, 1, 4]);
     }
 
     #[test]
     fn prime_form_from_non_normal_form() {
-        let set: Set = vec![A, F, Fs];
+        let set: PitchClassSet = set![A, F, Fs];
         let prime = from(&set);
         assert_eq!(prime, vec![0, 1, 4]);
     }
 
     #[test]
     fn prime_form_from_right_packed_normal_form() {
-        let set: Set = vec![Cs, F, Fs, G];
+        let set: PitchClassSet = set![Cs, F, Fs, G];
         let prime = from(&set);
         assert_eq!(prime, vec![0, 1, 2, 6]);
     }

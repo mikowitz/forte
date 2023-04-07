@@ -1,6 +1,6 @@
-use crate::{PitchClass, Set};
+use crate::PitchClass;
 
-pub fn intervals(set: &Set) -> Vec<u32> {
+pub fn intervals(set: &[PitchClass]) -> Vec<u32> {
     set.windows(2).map(find_interval).collect()
 }
 
