@@ -7,14 +7,15 @@ pub struct SetClass {
 }
 
 impl SetClass {
-    /// Constructs a set class from a given [PitchClassSet]
-    pub fn new(pitch_class_set: &PitchClassSet) -> Self {
-        let set = crate::prime_form::from(pitch_class_set);
-        Self { set }
-    }
-
     pub fn set(&self) -> &Vec<u32> {
         &self.set
+    }
+}
+
+impl From<&PitchClassSet> for SetClass {
+    fn from(value: &PitchClassSet) -> Self {
+        let set = crate::prime_form::from(value);
+        Self { set }
     }
 }
 
@@ -24,9 +25,9 @@ mod tests {
     use crate::{set, PitchClass::*};
 
     #[test]
-    fn new() {
+    fn from() {
         let pcs: PitchClassSet = set![Cs, F, Fs, G];
-        let set_class = SetClass::new(&pcs);
+        let set_class = SetClass::from(&pcs);
 
         assert_eq!(set_class.set(), &[0, 1, 2, 6]);
     }

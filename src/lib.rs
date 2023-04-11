@@ -216,7 +216,7 @@ pub fn to_normal_form(set: &PitchClassSet) -> PitchClassSet {
 /// assert_eq!(prime.set(), &[0, 1, 5]);
 /// ```
 pub fn to_prime_form(set: &PitchClassSet) -> SetClass {
-    SetClass::new(set)
+    SetClass::from(set)
 }
 
 /// Transposes a pitch class set by a given level (mod 12)
