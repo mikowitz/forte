@@ -19,7 +19,7 @@
 //! # use forte::{PitchClassSet, set, to_prime_form, PitchClass::*};
 //! let set: PitchClassSet = set![Cs, F, Fs, G];
 //! let prime = to_prime_form(&set);
-//! assert_eq!(prime, vec![0, 1, 2, 6]);
+//! assert_eq!(prime.set(), &[0, 1, 2, 6]);
 //! ```
 //! ## Transposition
 //!
@@ -81,11 +81,13 @@ mod normal_form;
 mod pitch_class;
 mod pitch_class_set;
 mod prime_form;
+mod set_class;
 mod transposition;
 mod utils;
 
 pub use pitch_class::PitchClass;
 pub use pitch_class_set::PitchClassSet;
+pub use set_class::SetClass;
 
 use paste::paste;
 
@@ -195,7 +197,7 @@ pub fn to_normal_form(set: &PitchClassSet) -> PitchClassSet {
 /// # use forte::{to_prime_form, set, PitchClassSet, PitchClass::*};
 /// let set: PitchClassSet = set![Bf, F, A]; // Total interval (mod 12) is 11
 /// # let prime = to_prime_form(&set);
-/// # assert_eq!(prime, vec![0, 1, 5]);
+/// # assert_eq!(prime.set(), &[0, 1, 5]);
 /// ```
 /// Unlike in [normal form](to_normal_form), where the reorderd set contains the original pitch class data,
 /// in prime form, the set is reordered and transposed to begin on `0`.
@@ -203,7 +205,7 @@ pub fn to_normal_form(set: &PitchClassSet) -> PitchClassSet {
 /// # use forte::{to_prime_form, set, PitchClassSet, PitchClass::*};
 /// # let set: PitchClassSet = set![Bf, F, A]; // Total interval (mod 12) is 11
 /// let prime = to_prime_form(&set);
-/// assert_eq!(prime, vec![0, 1, 5]); // Total interval (mod 12) is 5, and begins on 0
+/// assert_eq!(prime.set(), &[0, 1, 5]); // Total interval (mod 12) is 5, and begins on 0
 /// ```
 /// Likewise, because the prime form is the base form of the T/I set class to which the pitch
 /// class set belongs, multiple pitch class sets will have the same prime form
@@ -211,10 +213,10 @@ pub fn to_normal_form(set: &PitchClassSet) -> PitchClassSet {
 /// # use forte::{to_prime_form, set, PitchClassSet, PitchClass::*};
 /// let set: PitchClassSet = set![E, Ef, Af];
 /// let prime = to_prime_form(&set);
-/// assert_eq!(prime, vec![0, 1, 5]);
+/// assert_eq!(prime.set(), &[0, 1, 5]);
 /// ```
-pub fn to_prime_form(set: &PitchClassSet) -> Vec<u32> {
-    prime_form::from(set)
+pub fn to_prime_form(set: &PitchClassSet) -> SetClass {
+    SetClass::new(set)
 }
 
 /// Transposes a pitch class set by a given level (mod 12)

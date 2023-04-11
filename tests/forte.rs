@@ -47,5 +47,5 @@ fn normal_form() {
 fn prime_form() {
     let set: PitchClassSet = set![Bf, D, F, Fs];
 
-    assert_eq!(to_prime_form(&set), vec![0, 1, 4, 8]);
+    assert_eq!(to_prime_form(&set).set(), &[0, 1, 4, 8]);
 }
