@@ -83,6 +83,10 @@ defmodule ForteTest do
     test "returns the interval class vector for the set" do
       assert Forte.interval_class_vector([0, 1, 3, 7, 8]) == [2, 1, 1, 2, 3, 1]
       assert Forte.interval_class_vector([0, 1, 5, 6, 8]) == [2, 1, 1, 2, 3, 1]
+
+      assert Forte.interval_class_vector(Forte.sets()["7-10"]) == [4, 4, 5, 3, 3, 2]
+      assert Forte.interval_class_vector(Forte.sets()["6-Z4"]) == [4, 3, 2, 3, 2, 1]
+      assert Forte.interval_class_vector(Forte.sets()["6-Z37"]) == [4, 3, 2, 3, 2, 1]
     end
   end
 end
