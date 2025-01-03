@@ -1,6 +1,8 @@
 defmodule Forte do
   @type pitch_class_set() :: list(non_neg_integer())
 
+  defdelegate sets(), to: Forte.Sets
+
   @spec transpose(pitch_class_set(), integer()) :: pitch_class_set()
   def transpose(set, delta) do
     Enum.map(set, &mod(&1 + delta, 12))
