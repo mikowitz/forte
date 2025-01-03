@@ -89,4 +89,32 @@ defmodule ForteTest do
       assert Forte.interval_class_vector(Forte.sets()["6-Z37"]) == [4, 3, 2, 3, 2, 1]
     end
   end
+
+  describe "subsets/1" do
+    test "of a simple set" do
+      assert Forte.subsets([0, 1, 2]) == [
+               [],
+               [0],
+               [1],
+               [2],
+               [0, 1],
+               [0, 2],
+               [1, 2],
+               [0, 1, 2]
+             ]
+    end
+
+    test "of a longer set" do
+      subsets =
+        Forte.subsets([9, 8, 1, 2, 3, 5, 7])
+
+      assert length(subsets) == 128
+
+      assert [] in subsets
+      assert [1, 2, 3, 5, 7, 8, 9] in subsets
+      assert [1, 2, 9] in subsets
+      refute [2, 1, 9] in subsets
+      assert [8, 9] in subsets
+    end
+  end
 end

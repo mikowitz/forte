@@ -39,8 +39,30 @@ defmodule Forte do
     Map.values(ic_counts)
   end
 
+  @spec subsets(pitch_class_set()) :: list(list(non_neg_integer()))
+  def subsets(set) do
+    set = Enum.sort(set)
+
+    Enum.reduce(0..length(set), [], fn i, acc ->
+      subsets(i, set) ++ acc
+    end)
+    |> Enum.sort_by(&{length(&1), &1})
+  end
+
+  defp subsets(0, _), do: [[]]
+  defp subsets(_, []), do: []
+
+  defp subsets(n, [h | t]) do
+    subsets(n, t) ++
+      for l <- subsets(n - 1, t) do
+        [h | l]
+      end
+  end
+
   @spec prime_form(pitch_class_set(), atom()) :: pitch_class_set()
   def prime_form(set, _algorithm \\ :carter)
+
+  def prime_form([], _), do: []
 
   def prime_form(set, :carter) do
     set =
