@@ -1,5 +1,6 @@
 defmodule Forte.Rahn do
   import Bitwise
+  import Forte.{Operations, Utilities}
 
   def prime_form(set) do
     zeroed =
@@ -35,12 +36,8 @@ defmodule Forte.Rahn do
     Enum.map(set, &mod(&1 - h, 12))
   end
 
-  defp invert(set), do: Enum.map(set, &mod(12 - &1, 12))
-
   defp bitsize([h | _] = set) do
     Enum.map(set, &(1 <<< (&1 - h)))
     |> Enum.reduce(0, &|||/2)
   end
-
-  defp mod(a, b), do: rem(rem(a, b) + b, b)
 end

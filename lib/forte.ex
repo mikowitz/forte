@@ -1,21 +1,37 @@
 defmodule Forte do
+  alias Forte.Operations
   @type pitch_class_set() :: list(non_neg_integer())
 
+  import Forte.Utilities
+
   defdelegate sets(), to: Forte.Sets
+  defdelegate transpose(set, t), to: Operations
+  defdelegate transpose_to(set, t), to: Operations
+  defdelegate invert(set), to: Operations
 
-  @spec transpose(pitch_class_set(), integer()) :: pitch_class_set()
-  def transpose(set, delta) do
-    Enum.map(set, &mod(&1 + delta, 12))
+  @spec prime_form(pitch_class_set(), atom()) :: pitch_class_set()
+  def prime_form(set, _algorithm \\ :carter)
+
+  def prime_form([], _), do: []
+
+  def prime_form(set, :carter) do
+    inversion =
+      invert(set)
+
+    [set, inversion]
+    |> Enum.map(&normal_form_t0/1)
+    |> Enum.min()
   end
 
-  @spec transpose_to(pitch_class_set(), integer()) :: pitch_class_set()
-  def transpose_to([s | _] = set, starting) do
-    transpose(set, starting - s)
-  end
+  def prime_form(set, :rahn), do: Forte.Rahn.prime_form(set)
 
-  @spec invert(pitch_class_set()) :: pitch_class_set()
-  def invert(set) do
-    Enum.map(set, &mod(12 - &1, 12))
+  @spec normal_form(pitch_class_set()) :: pitch_class_set()
+  def normal_form(set) do
+    Enum.sort(set)
+    |> rotations()
+    |> with_smallest_span()
+    |> most_left_packed()
+    |> Enum.map(&mod(&1, 12))
   end
 
   @spec interval_class_vector(pitch_class_set()) :: list(non_neg_integer())
@@ -24,6 +40,7 @@ defmodule Forte do
 
     starting = %{1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 6 => 0}
 
+    # TODO: can do this with subsets
     ic_counts =
       Enum.reduce(0..(length(set) - 2), starting, fn i1, acc ->
         pc1 = Enum.at(prime, i1)
@@ -59,41 +76,6 @@ defmodule Forte do
       end
   end
 
-  @spec prime_form(pitch_class_set(), atom()) :: pitch_class_set()
-  def prime_form(set, _algorithm \\ :carter)
-
-  def prime_form([], _), do: []
-
-  def prime_form(set, :carter) do
-    set =
-      set
-      |> normal_form()
-      |> transpose_to(0)
-
-    inversion =
-      invert(set)
-      |> Enum.sort()
-      |> normal_form()
-      |> transpose_to(0)
-
-    min(set, inversion)
-  end
-
-  def prime_form(set, :rahn), do: Forte.Rahn.prime_form(set)
-
-  @spec normal_form(pitch_class_set()) :: pitch_class_set()
-  def normal_form(set) do
-    Enum.sort(set)
-    |> rotations()
-    |> with_smallest_span()
-    |> most_left_packed()
-    |> Enum.map(&mod(&1, 12))
-  end
-
-  defp mod(a, b) do
-    rem(rem(a, b) + b, b)
-  end
-
   defp rotations(set) do
     (set ++ Enum.map(set, &(&1 + 12)))
     |> Enum.chunk_every(length(set), 1, :discard)
@@ -113,4 +95,10 @@ defmodule Forte do
   end
 
   defp span([s | _] = set), do: List.last(set) - s
+
+  defp normal_form_t0(set) do
+    set
+    |> normal_form()
+    |> transpose_to(0)
+  end
 end
