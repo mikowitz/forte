@@ -36,17 +36,14 @@ defmodule Forte do
 
   @spec interval_class_vector(pitch_class_set()) :: list(non_neg_integer())
   def interval_class_vector(set) do
-    prime = prime_form(set)
-
     starting = %{1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 6 => 0}
 
-    prime
+    set
+    |> prime_form()
     |> subsets()
     |> Enum.filter(&(length(&1) == 2))
     |> Enum.reduce(starting, fn [pc1, pc2], acc ->
-      key = pc2 - pc1
-      key = if key > 6, do: 12 - key, else: key
-      Map.update(acc, key, 1, &(&1 + 1))
+      Map.update(acc, interval_class(pc2 - pc1), 1, &(&1 + 1))
     end)
     |> Map.values()
   end
@@ -96,4 +93,7 @@ defmodule Forte do
     |> normal_form()
     |> transpose_to(0)
   end
+
+  defp interval_class(interval) when interval > 6, do: 12 - interval
+  defp interval_class(interval), do: interval
 end
