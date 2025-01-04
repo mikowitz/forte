@@ -40,20 +40,15 @@ defmodule Forte do
 
     starting = %{1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 6 => 0}
 
-    # TODO: can do this with subsets
-    ic_counts =
-      Enum.reduce(0..(length(set) - 2), starting, fn i1, acc ->
-        pc1 = Enum.at(prime, i1)
-
-        Enum.reduce((i1 + 1)..(length(set) - 1), acc, fn i2, acc ->
-          pc2 = Enum.at(prime, i2)
-          key = pc2 - pc1
-          key = if key > 6, do: 12 - key, else: key
-          Map.update(acc, key, 1, &(&1 + 1))
-        end)
-      end)
-
-    Map.values(ic_counts)
+    prime
+    |> subsets()
+    |> Enum.filter(&(length(&1) == 2))
+    |> Enum.reduce(starting, fn [pc1, pc2], acc ->
+      key = pc2 - pc1
+      key = if key > 6, do: 12 - key, else: key
+      Map.update(acc, key, 1, &(&1 + 1))
+    end)
+    |> Map.values()
   end
 
   @spec subsets(pitch_class_set()) :: list(list(non_neg_integer()))
