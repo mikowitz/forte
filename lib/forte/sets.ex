@@ -15,4 +15,10 @@ defmodule Forte.Sets do
         |> Enum.into(%{})
 
   def sets, do: @sets
+
+  def name(set) do
+    prime = Forte.prime_form(set)
+
+    Enum.find(@sets, fn {k, v} -> v == prime end)
+  end
 end

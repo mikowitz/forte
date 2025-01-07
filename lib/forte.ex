@@ -5,6 +5,7 @@ defmodule Forte do
   import Forte.Utilities
 
   defdelegate sets(), to: Forte.Sets
+  defdelegate name(set), to: Forte.Sets
   defdelegate transpose(set, t), to: Operations
   defdelegate transpose_to(set, t), to: Operations
   defdelegate invert(set), to: Operations
