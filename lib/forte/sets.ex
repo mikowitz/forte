@@ -1,4 +1,6 @@
 defmodule Forte.Sets do
+  @moduledoc false
+
   @sets File.read!("priv/data/forte.sets")
         |> String.split("\n", trim: true)
         |> Enum.map(fn set_str ->
@@ -14,11 +16,13 @@ defmodule Forte.Sets do
         end)
         |> Enum.into(%{})
 
+  @spec sets() :: %{String.t() => Forte.pitch_class_set()}
   def sets, do: @sets
 
+  @spec name(list(integer())) :: {String.t(), Forte.pitch_class_set()} | nil
   def name(set) do
     prime = Forte.prime_form(set)
 
-    Enum.find(@sets, fn {k, v} -> v == prime end)
+    Enum.find(@sets, fn {_k, v} -> v == prime end)
   end
 end

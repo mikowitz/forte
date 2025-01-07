@@ -1,4 +1,6 @@
 defmodule Forte.Rahn do
+  @moduledoc false
+
   import Bitwise
   import Forte.{Operations, Utilities}
 
